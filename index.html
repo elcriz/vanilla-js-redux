@@ -1,0 +1,106 @@
+<html>
+	<head>
+		<title>Vanilla js redux-like store</title>
+		<style>
+			* {
+				font: 16px/20px Helvetica;
+			}
+			div {
+				width: 400px;
+				margin: 40% auto 0;
+				padding: 50px 0;
+				text-align: center;
+				background:rgb(200, 200, 200);
+			}
+			button {
+				width: 50px; height: 50px;
+				cursor: pointer;
+				border-radius: 6px;
+				background: black;
+				color: white;
+			}
+			input {
+				height: 50px;
+				width: 100px;
+				text-align: center;
+				border-radius: 6px;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div data-component-input-stepper>
+			<h1>Vanilla js redux-like store</h1>
+			<button data-decrement>-</button>
+				<input data-value value="0">
+			<button data-increment>+</button>
+		</div>
+
+		<script>
+			var state = { value: 0 };
+
+			var reducer = function(state, action) {
+				switch (action.type) {
+					case 'ACTION_INCREMENT':
+						return Object.assign(state, {} , {
+							value: state.value + 1
+						});
+					case 'ACTION_DECREMENT':
+						return Object.assign(state, {}, {
+							value: state.value - 1
+						});
+					case 'ACTION_SET_VALUE':
+						return Object.assign(state, {} , {
+							value: action.payload
+						});
+					default:
+						return state;
+				}
+			};
+
+			var dispatch = function(actionType, data) {
+				console.info('Previous state:', state);
+				console.info('Action', actionType, data);
+				state = Object.assign(state, {} , reducer(state, { type: actionType, payload: data }));
+				console.info('Next state:', state);
+			};
+
+			document.querySelector('[data-value]')
+				.addEventListener('blur', function(event) {
+					var newValue = parseInt(event.target.value);
+						dispatch('ACTION_SET_VALUE', (function(newValue){
+							if (newValue >= 0 && newValue <= 10) {
+								return newValue;
+							}
+							return newValue < 0 ? 0 : 10;
+						})(newValue));
+						setTimeout(function() {
+							document.querySelector('[data-value]')
+								.value = state.value;
+						});
+				});
+
+			document.querySelector('[data-decrement]')
+				.addEventListener('click', function() {
+					if (state.value - 1 >= 0) {
+						dispatch('ACTION_DECREMENT', null);
+						setTimeout(function() {
+							document.querySelector('[data-value]')
+								.value = state.value;
+						});
+					}
+				});
+
+			document.querySelector('[data-increment]')
+				.addEventListener('click', function() {
+					if (state.value + 1 <= 10) {
+						dispatch('ACTION_INCREMENT', null);
+						setTimeout(function() {
+							document.querySelector('[data-value]')
+								.value = state.value;
+						});
+					}
+				});
+		</script>
+	</body>
+</html>
